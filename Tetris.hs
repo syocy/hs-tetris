@@ -3,6 +3,9 @@ import Input
 import DataType
 import Util
 
+fieldHeight = 20
+fieldWidth  = 10
+
 --data Tetris = Tetris (GameVariables,[GameObject])
 data Tetris = Tetris {
   gameVariables :: GameVariables,
@@ -18,28 +21,26 @@ data GameObject =
     degree :: Int
   } |
   PileObj {
-    content :: Tetromino Cartesian,
-    howModern :: Int
+    content :: Tetromino Cartesian
   }
   
 deletePile :: [GameObject] -> Int -> [GameObject]
-deletePile obj n = map close $ filter upperp obj
+deletePile objs y = map close objs
   where
-    upperp (PileObj {howModern=x}) = not . (==) n $ x
-    upperp _ = True
-    close (PileObj {content=c, howModern=m}) 
-      | (m >= n)  = PileObj { content = c, howModern = m-1 }
-      | otherwise = PileObj { content = c, howModern = m }
-    close x = x
+    close :: GameObject -> GameObject
+    close (PileObj p) = PileObj . Tetromino $ filter hitp $ blocks p
+    close x = x 
+    hitp :: Cartesian -> Bool
+    hitp (Cartesian _ y') = y == y'
     
 transform :: GameObject -> Tetromino Cartesian
 transform (TetrominoObj {position=p, content=t, degree=d}) =
   ptrans p $ rotaten t d
     
--- collidep :: [GameObject] -> TetrominoObj -> Bool
--- collidep obj t = any collidep' obj
+-- collidep :: [GameObject] -> Tetromino Cartesian -> Bool
+-- collidep objs t = any collidep' objs
 --   where collidep' :: GameObject -> Bool
---         collidep' 
+--         collidep' (PileObj {coorXs=}) = 
 
 instance Game Tetris where
   update = updateTetris

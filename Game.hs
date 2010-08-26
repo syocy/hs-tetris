@@ -6,3 +6,4 @@ class Game g where
   update :: [TInput] -> g -> g
   render :: g -> IO ()
   isGameover :: g -> Bool
+  

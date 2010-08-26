@@ -11,6 +11,15 @@ maketet = Tetromino . map makecart
     makecart :: (Int,Int) -> Cartesian
     makecart x = Cartesian (fst x) (snd x)
 
+-- maketet の逆
+toPairs :: Tetromino Cartesian -> [(Int, Int)]
+toPairs = map toPair . blocks
+    where toPair :: Cartesian -> (Int, Int)
+          toPair (Cartesian x y) = (x, y)
+
+toYs :: Tetromino Cartesian -> [Int]
+toYs = map y . blocks
+          
 tetromino =
  [
     maketet [(0,0),(1,0),(0,1),(1,1)] -- O
