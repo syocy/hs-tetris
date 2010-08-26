@@ -3,6 +3,8 @@ import Input
 import DataType
 import Util
 
+import Data.List(intersect)
+
 fieldHeight = 20
 fieldWidth  = 10
 
@@ -22,7 +24,7 @@ data GameObject =
   } |
   PileObj {
     content :: Tetromino Cartesian
-  }
+  } deriving(Show,Eq)
   
 deletePile :: [GameObject] -> Int -> [GameObject]
 deletePile objs y = map close objs
@@ -37,10 +39,11 @@ transform :: GameObject -> Tetromino Cartesian
 transform (TetrominoObj {position=p, content=t, degree=d}) =
   ptrans p $ rotaten t d
     
--- collidep :: [GameObject] -> Tetromino Cartesian -> Bool
--- collidep objs t = any collidep' objs
---   where collidep' :: GameObject -> Bool
---         collidep' (PileObj {coorXs=}) = 
+collidep :: [GameObject] -> Tetromino Cartesian -> Bool
+collidep objs t = any collidep' objs
+  where collidep' :: GameObject -> Bool
+        collidep' (PileObj p) = not . null $ blocks t `intersect` blocks p
+        collidep' _ = False
 
 instance Game Tetris where
   update = updateTetris
