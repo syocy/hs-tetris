@@ -50,12 +50,11 @@ rotate t = ptrans halfc . simpleRotate . ptrans (negate halfc) $ t
     halfc :: Cartesian
     halfc = head $ tail $ blocks t
 
-rotaten :: Tetromino Cartesian -> Int -> Tetromino Cartesian
-rotaten t n | turn == 0 = t
-            | turn == 1 = rotate t
-            | turn == 2 = rotate $ rotate t
-            | turn == 3 = rotate $ rotate $ rotate t
-    where turn = mod n 4
+times :: Int -> (a -> a) -> a -> a
+times n = foldl (.) id . replicate n
+
+rotaten :: Int -> Tetromino Cartesian -> Tetromino Cartesian
+rotaten n = times n rotate
 
 -- Tetromino を文字列に(デバッグ用?)
 showOne :: Tetromino Cartesian -> String
