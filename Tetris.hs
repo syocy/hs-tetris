@@ -10,7 +10,6 @@ import Data.List(intersect,sort)
 fieldHeight = 20
 fieldWidth  = 10
 
-
 --data Tetris = Tetris (GameVariables,[GameObject])
 data Tetris = Tetris {
   gameVariables :: GameVariables,
@@ -21,30 +20,37 @@ data GameVariables = GameVariables {
 }
 data GameObject =
   TetrominoObj {
-    position :: Cartesian,
-    content :: Tetromino Cartesian,
-    degree :: Int
+      position :: Cartesian
+    , content :: Tetromino Cartesian
+--    , degree :: Int
   } |
   PileObj {
     content :: Tetromino Cartesian
   } deriving(Show,Eq)
   
-deletePile :: [GameObject] -> Int -> [GameObject]
-deletePile objs y = map close objs
+deletePile :: Int -> [GameObject] -> [GameObject]
+deletePile y = map close
   where
     close :: GameObject -> GameObject
-    close (PileObj p) = PileObj . Tetromino $ filter hitp $ blocks p
-    close x = x 
-    hitp :: Cartesian -> Bool
-    hitp (Cartesian _ y') = y == y'
+    close (PileObj p) = PileObj . Tetromino $ filter noHitp $ blocks p
+    close x = x
+    noHitp :: Cartesian -> Bool
+    noHitp (Cartesian _ y') = not $ y == y'
     
-transform :: GameObject -> Tetromino Cartesian
-transform (TetrominoObj {position=p, content=t, degree=d}) =
-  ptrans p $ rotaten t d
-transform x = content x
+-- transform :: GameObject -> Tetromino Cartesian
+-- transform (TetrominoObj {position=p, content=t, degree=d}) =
+--   ptrans p $ rotaten t d
+-- transform x = content x
     
-collidep :: [GameObject] -> Tetromino Cartesian -> Bool
-collidep objs t = any collidep' objs
+fieldOverp :: Tetromino Cartesian -> Bool
+fieldOverp = any fieldOverp' . toPairs
+  where fieldOverp' :: (Int,Int) -> Bool
+        fieldOverp' (x,y)
+          | x < 0 || x >= fieldWidth || y < 0 || y >= fieldHeight = True
+          | otherwise = False
+    
+collidep :: Tetromino Cartesian -> [GameObject] -> Bool
+collidep t = fieldOverp t || any collidep'
   where collidep' :: GameObject -> Bool
         collidep' (PileObj p) = not . null $ blocks t `intersect` blocks p
         collidep' _ = False
@@ -76,8 +82,25 @@ instance Game Tetris where
   render = renderTetris
   isGameover = isTetrisOver
 
-updateTetris :: [TInput] -> Tetris -> Tetris
+updateTetris :: TInput -> Tetris -> Tetris
 updateTetris = undefined
+-- updateTetris tinput (Tetris gv go) =Tetris gv $ map (updateTetris' tinput) go
+--   where
+--     updateTetris' :: TInput -> GameObject -> GameObject
+--     updateTetris' = undefined
+--     newPos :: TInput -> Tetromino Cartesian -> Tetromino Cartesian
+--     newPos TLeft pos = pos + if x pos == 0 then 0 else Cartesian -1 0
+--     newPos TRight pos = pos + if x pos == fieldWidth-1 then 0 else Cartesian 1 0
+--     newPos TDown pos = undefined
+--     newPos TSpace 
+    -- updateTetris' TLeft (TetrominoObj pos cont deg) =
+    --   let pos' = if x pos == 0 then pos else pos + Cartesian -1 0 in
+    --   TetrominoObj pos' cont deg
+    -- updateTetris' TRight (TetrominoObj pos cont deg) =
+    --   let pos' = if x pos == fieldWidth-1 then pos else pos + Cartesian 1 0 in
+    --   TetrominoObj pos' cont deg
+    -- updateTetris' TDown (TetrominoObj pos cont deg) =
+    --   let pos' = if collidep go $ transform 
 
 renderTetris :: Tetris -> IO ()
 renderTetris (Tetris gv go) = putStr $ stringForRender go
