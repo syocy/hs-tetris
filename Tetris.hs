@@ -37,10 +37,9 @@ deletePile y = map close
     noHitp :: Cartesian -> Bool
     noHitp (Cartesian _ y') = not $ y == y'
     
--- transform :: GameObject -> Tetromino Cartesian
--- transform (TetrominoObj {position=p, content=t, degree=d}) =
---   ptrans p $ rotaten t d
--- transform x = content x
+transform :: GameObject -> Tetromino Cartesian
+transform (TetrominoObj {position=p, content=t}) = ptrans p t
+transform x = content x
     
 fieldOverp :: Tetromino Cartesian -> Bool
 fieldOverp = any fieldOverp' . toPairs
@@ -50,7 +49,7 @@ fieldOverp = any fieldOverp' . toPairs
           | otherwise = False
     
 collidep :: Tetromino Cartesian -> [GameObject] -> Bool
-collidep t = fieldOverp t || any collidep'
+collidep t objs = fieldOverp t || any collidep' objs
   where collidep' :: GameObject -> Bool
         collidep' (PileObj p) = not . null $ blocks t `intersect` blocks p
         collidep' _ = False
