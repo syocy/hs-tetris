@@ -1,0 +1,7 @@
+hs-tetris
+
+To run:
+    runghc Tetris.hs
+
+Code License: New BSD License
+http://www.opensource.org/licenses/bsd-license.php
