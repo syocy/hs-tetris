@@ -17,6 +17,9 @@ toPairs = map toPair . blocks
     where toPair :: Cartesian -> (Int, Int)
           toPair (Cartesian x y) = (x, y)
 
+toXs :: Tetromino Cartesian -> [Int]
+toXs = map x . blocks
+
 toYs :: Tetromino Cartesian -> [Int]
 toYs = map y . blocks
           
@@ -28,7 +31,7 @@ tetromino =
   , maketet [(0,1),(1,1),(1,0),(2,0)] -- S
   , maketet [(0,0),(1,0),(2,0),(2,1)] -- J
   , maketet [(2,0),(1,0),(0,0),(0,1)] -- L
-  , maketet [(0,0),(1,0),(2,0),(1,1)] -- T
+  , maketet [(1,0),(0,1),(1,1),(2,1)] -- T
  ]
 
 -- 平行移動関数
@@ -45,11 +48,19 @@ simpleRotate = fmap mat
         
 -- 中心座標での回転関数
 rotate :: Tetromino Cartesian -> Tetromino Cartesian
-rotate t = ptrans halfc . simpleRotate . ptrans (negate halfc) $ t
-  where
-    halfc :: Cartesian
-    halfc = head $ tail $ blocks t
-
+-- rotate t = ptrans halfc . simpleRotate . ptrans (negate halfc) $ t
+--   where
+--     halfc :: Cartesian
+-- --    halfc = head $ tail $ blocks t
+rotate t = let rotated = simpleRotate $ ptrans (Cartesian (-1) (-1)) t in
+  let minx = minimum . toXs $ rotated in
+  let miny = minimum . toYs $ rotated in
+  case (minx, miny) of
+    (x, y) | x<0 && y<0 -> ptrans (Cartesian (-x) (-y)) rotated
+           | x<0 -> ptrans (Cartesian (-x) 0) rotated
+           | y<0 -> ptrans (Cartesian 0 (-y)) rotated
+           | otherwise -> rotated
+            
 times :: Int -> (a -> a) -> a -> a
 times n = foldl (.) id . replicate n
 

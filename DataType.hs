@@ -1,6 +1,7 @@
 module DataType where
 
 import Control.Monad(join)
+--import Data.List(sort)
 
 -- 2次元座標の型
 data Cartesian = Cartesian {
@@ -13,10 +14,8 @@ data Tetromino a = Tetromino {
   blocks :: [a]
 } deriving (Eq,Show)
 
---type Tetromino' = Tetromino Cartesian
-
---newtype Tetromino a = Tetromino [a]
---                    deriving (Eq,Show)
+(<++>) :: Tetromino Cartesian -> Tetromino Cartesian -> Tetromino Cartesian
+lhs <++> rhs = Tetromino $ (blocks lhs ++ blocks rhs)
 
 -- 平行移動のための (+)
 instance Num Cartesian where
